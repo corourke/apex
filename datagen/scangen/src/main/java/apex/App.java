@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.logging.FileHandler;
+import java.util.logging.SimpleFormatter;
 import java.util.stream.Collectors;
 
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -36,11 +38,27 @@ public class App {
         // Disable Jansi library as it has a bug that causes the console to hang
         System.setProperty("log4j.skipJansi", "true");
 
+        // Configure file logging
+        try {
+            FileHandler fileHandler = new FileHandler("scangen.log", true);
+            fileHandler.setFormatter(new SimpleFormatter());
+            fileHandler.setLevel(Level.SEVERE);
+            logger.addHandler(fileHandler);
+            logger.setLevel(Level.INFO);
+            for (var handler : logger.getParent().getHandlers()) {
+                handler.setLevel(Level.INFO);
+            }
+        } catch (IOException e) {
+            System.err.println("Failed to configure file logging: " + e.getMessage());
+            System.exit(1);
+        }
+
         // Load properties file
         try {
             config.load(new FileInputStream("config.properties"));
         } catch (IOException e) {
-            System.out.println("Unable to load configuration file. Please check the file path and try again.");
+            System.out.println("Unable to load configuration file.");
+            logger.log(Level.SEVERE, "Configuration file loading failed", e);
             System.exit(1);
         }
 
@@ -85,19 +103,18 @@ public class App {
         }));
 
         for (String timezone : timezones) {
-            TransactionGenerator generator = new TransactionGenerator(config, kafkaProps, products, stores, timezone);
-            Thread generatorThread = new Thread(generator); // Wrap the generator in a Thread
+            TransactionGenerator generator = new TransactionGenerator(config, kafkaProps, products, stores, timezone,
+                    logger);
+            Thread generatorThread = new Thread(generator);
             generatorThreads.put(timezone, generatorThread);
-            // generators.put(timezone, generator);
-            generatorThread.start(); // Start the generator thread
+            generatorThread.start();
             // Delay for 7 seconds to keep reporting from interleaving
             try {
                 Thread.sleep(7000);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                logger.log(Level.WARNING, "Thread sleep interrupted", e);
             }
         }
-
     }
 
     // Create a connection to the database, nothin fancy
@@ -135,7 +152,7 @@ public class App {
                 result.add(mapper.map(rs));
             }
         } catch (SQLException e) {
-            System.err.println("Error loading data from DB: " + e.getMessage());
+            logger.log(Level.SEVERE, "Error loading data from DB: " + e.getMessage());
             System.exit(1);
         }
         return result;
@@ -159,5 +176,4 @@ public class App {
                 rs.getString("state"),
                 rs.getString("timezone")));
     }
-
 }
