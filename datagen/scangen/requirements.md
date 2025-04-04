@@ -58,8 +58,7 @@ This list encapsulates the functional and operational requirements for the point
 6. **External Dependencies**:
 
    - A Kafka instance or cluster where the data will be sent.
-   - Configuration file for the Kafka API.
+   - A Postgres database with populated `item_master` and `stores` tables.
+   - Configuration file for the Kafka API and database access.
    - The Confluent Kafka Java API.
-   - Lists or databases of UPC codes and store numbers to enable relational joins during analysis.
-   - A build tool to track dependencies.
 ```
