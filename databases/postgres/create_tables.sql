@@ -12,13 +12,13 @@ CREATE TABLE item_categories (
 -- Table 2: Item Master
 CREATE TABLE item_master (
     category_code INTEGER, 
-    internal_id INTEGER PRIMARY KEY,
+    item_id INTEGER PRIMARY KEY,
     base_price DECIMAL(10,2), 
     upc_code VARCHAR(15) UNIQUE, 
     case_qty INTEGER,
     _frequency INTEGER -- Used for data generation
 );
-CREATE INDEX idx_item_upc ON item_master (upc_code);
+CREATE INDEX idx_upc_code ON item_master (upc_code);
 ALTER TABLE IF EXISTS item_master
     ADD CONSTRAINT fk_item_category FOREIGN KEY (category_code)
     REFERENCES item_categories (category_code) MATCH SIMPLE
@@ -35,7 +35,7 @@ CREATE TABLE stores (
     zipcode VARCHAR(10),
     longitude NUMERIC,
     latitude NUMERIC, 
-    timezone VARCHAR(32),
-    region VARCHAR(32)
+    region VARCHAR(32),
+    timezone VARCHAR(32)
 );
 

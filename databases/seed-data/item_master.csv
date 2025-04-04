@@ -1,4 +1,4 @@
-"category_code","internal_id","base_price","upc_code","case_qty","_frequency"
+"category_code","item_id","base_price","upc_code","case_qty","_frequency"
 "20460","12345","7.71","13054893038","18","2"
 "20100","12346","1.92","18478821184","1","2"
 "20160","12347","10.96","17636724985","24","2"

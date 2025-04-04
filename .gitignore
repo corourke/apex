@@ -9,12 +9,8 @@
 
 # Java
 target/
-*/config.properties
+config.properties
 
 # User-specific files
 *.drawio.bkp
 */data/*
-
-# User-specific files (MonoDevelop/Xamarin Studio)
-*.userprefs
-
