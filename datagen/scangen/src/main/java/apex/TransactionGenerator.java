@@ -2,12 +2,16 @@ package apex;
 
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.java_websocket.client.WebSocketClient;
+import org.java_websocket.handshake.ServerHandshake;
+import org.json.JSONObject;
 
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.math.BigDecimal;
+import java.net.URI;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.logging.Logger;
@@ -20,6 +24,8 @@ public class TransactionGenerator implements Runnable {
   private KafkaProducer<String, String> producer;
   private String kafkaTopic;
   private Logger logger; // Add logger
+  private final String webSocketUri; // e.g., "ws://localhost:8080"
+  private WebSocketClient webSocketClient;
 
   private List<Product> products;
   private List<Store> stores;
@@ -61,6 +67,9 @@ public class TransactionGenerator implements Runnable {
     this.timezone = timezone;
     this.logger = logger; // Initialize logger
 
+    this.webSocketUri = config.getProperty("webui.socket.uri");
+    connectToWebSocket();
+
     Pattern pattern = Pattern.compile("GMT([+-]\\d{2})");
     Matcher matcher = pattern.matcher(timezone);
     if (matcher.find()) {
@@ -95,6 +104,7 @@ public class TransactionGenerator implements Runnable {
     localTime = localDateTime.toLocalTime();
 
     int inProcessTransactionCount = 0;
+    int inProcessDataVolume = 0;
     for (Store store : stores) {
       int transactionTarget = getTransactionTarget();
       inProcessTransactionCount += transactionTarget;
@@ -114,13 +124,16 @@ public class TransactionGenerator implements Runnable {
             quantity,
             price);
 
+        inProcessDataVolume += transaction.toJSON().length();
         processTransaction(transaction);
       }
     }
 
     LocalDateTime now = LocalDateTime.now(ZoneId.of("UTC"));
-    System.out.println(now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) +
-        " Region: " + timezone + " at: " + localTime + " produced " + inProcessTransactionCount + " transactions");
+    var timestamp = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+    System.out.println(timestamp +
+        " Timezone: " + timezone + " at: " + localTime + " produced " + inProcessTransactionCount + " transactions");
+    sendActivitySummary(timestamp, inProcessTransactionCount, inProcessDataVolume);
   }
 
   private void processTransaction(Transaction transaction) {
@@ -132,8 +145,9 @@ public class TransactionGenerator implements Runnable {
       }
     });
 
+    // One in 200 scans will be voided in the next 30 to 90 seconds
     if ((random.nextInt(200) + 1) == 1) {
-      int delaySeconds = 60 + random.nextInt(121);
+      int delaySeconds = 30 + random.nextInt(61);
       LocalDateTime scheduledTime = LocalDateTime.now(ZoneId.of("UTC"))
           .plusHours(offsetHours).plusSeconds(delaySeconds);
       pendingVoids.add(new ScheduledVoidTransaction(transaction, scheduledTime));
@@ -190,7 +204,7 @@ public class TransactionGenerator implements Runnable {
     } else if (hour >= 13 && hour < 16) {
       multiplier = 0.25;
     } else if (hour >= 16 && hour < 19) {
-      multiplier = 0.5;
+      multiplier = 0.75;
     } else if (hour >= 19 && hour < 22) {
       multiplier = 0.17;
     } else {
@@ -210,4 +224,51 @@ public class TransactionGenerator implements Runnable {
     }
     return Math.max(adjustedTransactions, 0);
   }
+
+  // Connect to the Web UI's WebSocket server
+  private void connectToWebSocket() {
+    logger.log(Level.INFO, "Web socket URI: " + webSocketUri);
+    try {
+      webSocketClient = new WebSocketClient(new URI(webSocketUri)) {
+        @Override
+        public void onOpen(ServerHandshake handshakedata) {
+          logger.log(Level.INFO, "Connected to Web UI for " + timezone);
+        }
+
+        @Override
+        public void onMessage(String message) {
+          /* Handle shutdown if needed */ }
+
+        @Override
+        public void onClose(int code, String reason, boolean remote) {
+        }
+
+        @Override
+        public void onError(Exception ex) {
+          logger.log(Level.WARNING, ex.toString());
+        }
+      };
+      webSocketClient.connect();
+    } catch (Exception e) {
+      logger.log(Level.WARNING, "WebSocket connection failed: " + e.getMessage());
+    }
+  }
+
+  // Send activity level summary to the Web UI
+  // {'type': 'scans', 'timezone': 'MST (GMT-07)',
+  // 'batchCount': 122, 'timestamp': '2025-04-07 14:42:59', 'dataVolume': 10024,
+  // 'currentTime': '14:42:59'}
+  private void sendActivitySummary(String timestamp, int transactionCount, int dataVolume) {
+    if (webSocketClient != null && webSocketClient.isOpen()) {
+      JSONObject summary = new JSONObject();
+      summary.put("type", "scans");
+      summary.put("timezone", timezone);
+      summary.put("batchCount", transactionCount);
+      summary.put("timestamp", timestamp);
+      summary.put("dataVolume", dataVolume);
+      summary.put("localTime", localTime.format(DateTimeFormatter.ofPattern("HH:mm:ss")));
+      webSocketClient.send(summary.toString());
+    }
+  }
+
 }

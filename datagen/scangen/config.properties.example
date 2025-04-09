@@ -16,3 +16,4 @@ sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule require
 # Confluent Schema Registry (if used)
 schema.registry.url=https://psrc-zj6ny.us-east-2.aws.confluent.cloud
 
+webui.socket.uri=ws://localhost:8080

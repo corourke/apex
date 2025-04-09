@@ -14,3 +14,4 @@ config.properties
 # User-specific files
 *.drawio.bkp
 */data/*
+scangen.log

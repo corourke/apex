@@ -48,7 +48,7 @@ This list encapsulates the functional and operational requirements for the point
 
    - The program will include a minimal UI for monitoring the data generation.
    - The UI will include:
-     - By region:
+     - By timezone (region):
        - current transaction output rate
        - cumulative transaction count
        - current time within time zone
