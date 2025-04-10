@@ -1,0 +1,29 @@
+{
+  "start": {
+    "type": "start",
+    "timezone": { "type": "string", "help": "Timezone (e.g., 'PST (GMT-08)')" },
+    "localTime": {
+      "type": "string",
+      "help": "Local time (e.g., 12:00:00)"
+    }
+  },
+  "stop": {
+    "type": "stop",
+    "timezone": { "type": "string", "help": "Timezone (e.g., 'PST (GMT-08)')" },
+    "localTime": {
+      "type": "string",
+      "help": "Local time (e.g., 13:00:00)"
+    }
+  },
+  "scans": {
+    "type": "scans",
+    "timezone": { "type": "string", "help": "Timezone (e.g., 'PST (GMT-08)')" },
+    "batchCount": { "type": "number", "help": "Number of transactions in the batch" },
+    "timestamp": { "type": "string", "help": "Timestamp of the batch (e.g., 2023-10-01 12:34:56)" },
+    "dataVolume": { "type": "number", "help": "Data volume in bytes" },
+    "localTime": {
+      "type": "string",
+      "help": "Local time (e.g., 12:35:00)"
+    }
+  }
+}

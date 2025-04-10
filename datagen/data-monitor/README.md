@@ -5,7 +5,7 @@ Run two processes in separate terminals:
 Start the WebSocket Server:
 
 ```bash
-npm run start-server
+npm run start
 ```
 
 This runs `server.js` on `http://localhost:8080`, serving the WebSocket (and `build/` if present, though not needed for dev).
@@ -13,7 +13,7 @@ This runs `server.js` on `http://localhost:8080`, serving the WebSocket (and `bu
 Start the Dev Server:
 
 ```bash
-npm start
+npm start-dev-server
 ```
 
 This runs `react-scripts start` on `http://localhost:3000`, serving the React app with hot reloading.
@@ -36,7 +36,7 @@ When you’re ready to deploy or test the production build:
 2. Run the Server
 
    ```bash
-   npm run start-server
+   npm run start
    ```
 
    - Serves the app at `http://localhost:8080` using the `build/` folder.

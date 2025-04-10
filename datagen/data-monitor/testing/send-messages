@@ -1,9 +1,3 @@
-for region in "PST (GMT-08)" "MST (GMT-07)" "CST (GMT-06)" "EST (GMT-05)"
-do
-  python3.11 send-message.py start "$region" "`date "+%Y-%m-%d% %H:%M:%S"`"
-  sleep 1
-done
-
 for i in {1..1}
 do
   for region in "PST (GMT-08)" "MST (GMT-07)" "CST (GMT-06)" "EST (GMT-05)"
@@ -12,9 +6,4 @@ do
     python3.11 send-message.py scans "$region" $RANDOM "`date "+%Y-%m-%d% %H:%M:%S"`" $RANDOM "`date -v +${digit}H "+%Y-%m-%d% %H:%M:%S"`"
     sleep 1
   done
-done
-
-for region in "PST (GMT-08)" "MST (GMT-07)" "CST (GMT-06)" "EST (GMT-05)"
-do
-  python3.11 send-message.py stop "$region" "`date "+%Y-%m-%d% %H:%M:%S"`"
 done
