@@ -75,7 +75,7 @@ public class TransactionGenerator implements Runnable {
     if (matcher.find()) {
       this.offsetHours = Integer.parseInt(matcher.group(1));
     }
-    System.out.println("Generator starting, timezone: " + timezone + " offset: " + offsetHours);
+    logger.log(Level.INFO, "Generator starting, timezone: " + timezone + " offset: " + offsetHours);
   }
 
   @Override
@@ -87,12 +87,12 @@ public class TransactionGenerator implements Runnable {
         processPendingVoids();
         Thread.sleep(60000);
       } catch (InterruptedException e) {
-        System.out.println("Generator interrupted, timezone: " + timezone);
+        logger.log(Level.WARNING, "Generator interrupted, timezone: " + timezone);
         running = false;
       }
     }
     producer.close();
-    System.out.println("Generator exiting, timezone: " + timezone);
+    logger.log(Level.INFO, "Generator exiting, timezone: " + timezone);
   }
 
   public void stopRunning() {
@@ -131,7 +131,7 @@ public class TransactionGenerator implements Runnable {
 
     LocalDateTime now = LocalDateTime.now(ZoneId.of("UTC"));
     var timestamp = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-    System.out.println(timestamp +
+    logger.log(Level.INFO, timestamp +
         " Timezone: " + timezone + " at: " + localTime + " produced " + inProcessTransactionCount + " transactions");
     sendActivitySummary(timestamp, inProcessTransactionCount, inProcessDataVolume);
   }
@@ -180,7 +180,7 @@ public class TransactionGenerator implements Runnable {
           svt.original.getUnitPrice());
       processTransaction(voidTransaction);
     }
-    System.out.println("    Voided " + dueVoids.size() + " including: " + dueVoids.get(0).original.getScanId()
+    logger.log(Level.INFO, "    Voided " + dueVoids.size() + " including: " + dueVoids.get(0).original.getScanId()
         + " pending: " + pendingVoids.size());
   }
 

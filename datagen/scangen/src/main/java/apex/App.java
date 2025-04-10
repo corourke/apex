@@ -48,6 +48,8 @@ public class App {
             for (var handler : logger.getParent().getHandlers()) {
                 handler.setLevel(Level.INFO);
             }
+            System.setProperty("java.util.logging.SimpleFormatter.format",
+                    "%4$s: %2$s %1$tb %1$td, %1$tY %1$tl:%1$tM:%1$tS %1$Tp - %5$s%6$s%n");
         } catch (IOException e) {
             System.err.println("Failed to configure file logging: " + e.getMessage());
             System.exit(1);
@@ -57,7 +59,6 @@ public class App {
         try {
             config.load(new FileInputStream("config.properties"));
         } catch (IOException e) {
-            System.out.println("Unable to load configuration file.");
             logger.log(Level.SEVERE, "Configuration file loading failed", e);
             System.exit(1);
         }
@@ -73,9 +74,9 @@ public class App {
 
         // Load lookup tables from the Postgres database
         List<Product> products = loadProductsFromDB();
-        System.out.println("Products read: " + products.size());
+        logger.log(Level.INFO, "Products read: " + products.size());
         List<Store> stores = loadStoresFromDB();
-        System.out.println("Stores read: " + stores.size());
+        logger.log(Level.INFO, "Stores read: " + stores.size());
         closeConnection();
 
         // Initialize Kafka configuration
@@ -91,12 +92,12 @@ public class App {
         List<String> timezones = stores.stream().map(Store::getTimezone).distinct().collect(Collectors.toList());
 
         // Initialize and start the transaction generators
-        System.out.println("Starting generator threads...");
+        logger.log(Level.INFO, "Starting generator threads...");
         Map<String, Thread> generatorThreads = new HashMap<>();
 
         // Add shutdown hook for graceful shutdown
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            System.out.println("Shutting down...");
+            logger.log(Level.INFO, "Shutting down...");
             generatorThreads.forEach((timezone, generatorThread) -> {
                 generatorThread.interrupt(); // Attempt to stop the generator thread
             });
@@ -127,7 +128,7 @@ public class App {
     }
 
     private static void closeConnection() {
-        System.out.println("Closing the database connection...");
+        logger.log(Level.INFO, "Closing the database connection...");
         try {
             if (dbConnection != null && dbConnection.isValid(5)) {
                 dbConnection.close();
