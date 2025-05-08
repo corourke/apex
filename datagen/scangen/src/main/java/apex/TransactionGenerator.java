@@ -254,19 +254,32 @@ public class TransactionGenerator implements Runnable {
     }
   }
 
+  private void sendStart(String timestamp, int storeCount) {
+    if (webSocketClient != null && webSocketClient.isOpen()) {
+      JSONObject summary = new JSONObject();
+      summary.put("type", "start");
+      summary.put("timezone", timezone);
+      summary.put("timestamp", timestamp);
+      summary.put("localTime", localTime.format(DateTimeFormatter.ofPattern("HH:mm:ss")));
+      summary.put("storeCount", storeCount);
+      webSocketClient.send(summary.toString());
+    }
+  }
+
   // Send activity level summary to the Web UI
   // {'type': 'scans', 'timezone': 'MST (GMT-07)',
   // 'batchCount': 122, 'timestamp': '2025-04-07 14:42:59', 'dataVolume': 10024,
   // 'currentTime': '14:42:59'}
-  private void sendActivitySummary(String timestamp, int transactionCount, int dataVolume) {
+  private void sendActivitySummary(String timestamp, int transactionCount, int voidedTrxCount, int dataVolume) {
     if (webSocketClient != null && webSocketClient.isOpen()) {
       JSONObject summary = new JSONObject();
       summary.put("type", "scans");
       summary.put("timezone", timezone);
-      summary.put("batchCount", transactionCount);
       summary.put("timestamp", timestamp);
-      summary.put("dataVolume", dataVolume);
       summary.put("localTime", localTime.format(DateTimeFormatter.ofPattern("HH:mm:ss")));
+      summary.put("batchCount", transactionCount);
+      summary.put("voidCount", voidedTrxCount);
+      summary.put("dataVolume", dataVolume);
       webSocketClient.send(summary.toString());
     }
   }
