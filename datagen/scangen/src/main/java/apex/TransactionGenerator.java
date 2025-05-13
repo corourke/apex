@@ -76,6 +76,9 @@ public class TransactionGenerator implements Runnable {
       this.offsetHours = Integer.parseInt(matcher.group(1));
     }
     logger.log(Level.INFO, "Generator starting, timezone: " + timezone + " offset: " + offsetHours);
+    LocalDateTime now = LocalDateTime.now(ZoneId.of("UTC"));
+    var timestamp = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+    sendStart(timestamp, stores.size());
   }
 
   @Override
@@ -133,7 +136,7 @@ public class TransactionGenerator implements Runnable {
     var timestamp = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     logger.log(Level.INFO, timestamp +
         " Timezone: " + timezone + " at: " + localTime + " produced " + inProcessTransactionCount + " transactions");
-    sendActivitySummary(timestamp, inProcessTransactionCount, inProcessDataVolume);
+    sendActivitySummary(timestamp, inProcessTransactionCount, 0, inProcessDataVolume);
   }
 
   private void processTransaction(Transaction transaction) {
