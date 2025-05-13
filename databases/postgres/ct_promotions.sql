@@ -25,34 +25,16 @@ ALTER TABLE IF EXISTS retail.promotions OWNER TO cdc_user;
 GRANT ALL ON TABLE retail.promotions TO cdc_user;
 
 -- create a few sample records
-INSERT INTO
-  retail.promotions (
-    promotion_name,
-    start_date,
-    end_date,
-    discount_type,
-    discount_value,
-    category_code
-  )
+INSERT INTO retail.promotions (promotion_name,start_date,end_date,discount_type,discount_value,region,category_code,item_id,conversions)
 SELECT
-  CONCAT ('Save on ', category_name) AS promotion_name,
-  NOW () AS start_date,
-  NOW () + INTERVAL '7 days' AS end_date,
-  'PCT_OFF' AS discount_type,
-  FLOOR(POWER(RANDOM (), 3) * (10 -5) + 5) AS discount_value,
-  category_code
+  CONCAT('Save on ', category_name) AS promotion_name,
+  CURRENT_DATE AS start_date,
+  (CURRENT_DATE + (FLOOR(RANDOM() * 20) + 5 || ' days')::INTERVAL)::DATE AS end_date,
+  (ARRAY['PCT_OFF', 'AMT_OFF', 'NEW_PRICE', 'BOGO'])[floor(random() * 4 + 1)] AS discount_type,
+  FLOOR(POWER(RANDOM(), 3) * (10 - 5) + 5) AS discount_value,
+  NULL,
+  category_code,
+  NULL,
+  0
 FROM
-  item_categories TABLESAMPLE bernoulli (30);
-
--- create a few sample records (SQL)
-INSERT INTO retail.promotions (promotion_name,start_date,end_date,discount_type,discount_value,region,category_code,item_id,conversions) VALUES
-	 ('Save on Groceries','2024-07-15','2024-07-22','PCT_OFF',5.00,NULL,20100,NULL,0),
-	 ('Save on Paper Goods','2024-07-15','2024-07-22','PCT_OFF',8.00,NULL,20190,NULL,0),
-	 ('Save on Clothing, Men’s','2024-07-15','2024-07-22','PCT_OFF',5.00,NULL,20200,NULL,0),
-	 ('Save on Housewares','2024-07-15','2024-07-22','PCT_OFF',5.00,NULL,20280,NULL,0),
-	 ('Save on Appliances','2024-07-15','2024-07-22','PCT_OFF',9.00,NULL,20300,NULL,0),
-	 ('Save on Audio','2024-07-15','2024-07-22','PCT_OFF',8.00,NULL,20330,NULL,0),
-	 ('Save on Computers','2024-07-15','2024-07-22','PCT_OFF',5.00,NULL,20370,NULL,0),
-	 ('Save on Jewelry','2024-07-15','2024-07-22','PCT_OFF',5.00,NULL,20400,NULL,0),
-	 ('Save on Hardware and Tools','2024-07-15','2024-07-22','PCT_OFF',5.00,NULL,20600,NULL,0),
-	 ('Save on Lumber','2024-07-15','2024-07-22','PCT_OFF',6.00,NULL,20640,NULL,0);
+  item_categories TABLESAMPLE BERNOULLI (30);
