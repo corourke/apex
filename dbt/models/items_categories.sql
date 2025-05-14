@@ -2,17 +2,8 @@
 
 {{
     config(
-        materialized='incremental',
-        file_format='hudi',
-        incremental_strategy='merge',
         unique_key='item_id',
-        location_root='s3://onehouse-customer-bucket-7a00bf9c/datalake/',
-        schema='apex_silver',
-        options={
-        'type': 'mor',
-        'primaryKey': 'item_id',
-        'precombineKey': 'event_timestamp'
-        }
+        schema='apex_silver'
     )
 }}
 
