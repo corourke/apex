@@ -7,7 +7,7 @@ version: '1.0.0'
 config-version: 2
 
 # This setting configures which "profile" dbt uses for this project.
-profile: 'Apex_Datalake'
+profile: 'apex_onehouse_sql_endpoint'
 
 # These configurations specify where dbt should look for different types of files.
 # The `model-paths` config, for example, states that models in this project can be
@@ -40,7 +40,8 @@ models:
       +materialized: incremental
       +incremental_strategy: merge
       +file_format: hudi
-      +location_root: s3://onehouse-customer-bucket-7a00bf9c/datalake/
+      +pre_hook: USE apex_bronze
+      +location_root: s3://onehouse-customer-bucket-7a00bf9c/datalake/apex_silver/
       +tblproperties:
          hoodie.table.type: mor
 

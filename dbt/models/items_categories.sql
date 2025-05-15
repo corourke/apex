@@ -2,8 +2,7 @@
 
 {{
     config(
-        unique_key='item_id',
-        schema='apex_silver'
+        unique_key='item_id'
     )
 }}
 

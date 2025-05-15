@@ -3,21 +3,16 @@
 {{
     config(
         unique_key='scan_id',
-        schema='apex_silver'
+        parition_by=['year_month']
     )
 }}
 
-WITH stores as (
-  SELECT store_id, city, state, region 
-  FROM apex_bronze.retail_stores
-),
 
-final as (
-  SELECT 
+SELECT 
     scans.scan_id,
-    CAST(parse_datetime(scans.scan_datetime, 'yyyy-MM-dd HH:mm:ss') AS TIMESTAMP(6)) AS scan_datetime,
+    TO_TIMESTAMP(scans.scan_datetime, 'yyyy-MM-dd HH:mm:ss') AS scan_timestamp,
     scans.year_month,
-    scans.item_id,
+    items_categories.item_id,
     scans.item_upc,
     scans.unit_qty,
     scans.unit_price,
@@ -28,9 +23,9 @@ final as (
     stores.city,
     stores.state,
     stores.region
-  FROM apex_bronze.retail_scans AS scans
-  INNER JOIN stores on scans.store_id = stores.store_id
-  INNER JOIN {{ref('items_categories')}} ON (scans.item_upc = items_categories.item_upc)
-) 
-
-SELECT * FROM final
+FROM apex_bronze.retail_scans AS scans
+INNER JOIN apex_bronze.retail_stores AS stores on scans.store_id = stores.store_id
+INNER JOIN {{ref('items_categories')}} ON (scans.item_upc = items_categories.item_upc)
+{% if is_incremental() %}
+WHERE DATE(TO_TIMESTAMP(scans.scan_datetime, 'yyyy-MM-dd HH:mm:ss')) = '{{ var("scan_date") }}'
+{% endif %}

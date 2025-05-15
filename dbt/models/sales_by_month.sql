@@ -2,14 +2,13 @@
 
 {{
     config(
-        unique_key='item_upc',
-        schema='apex_silver'
+        unique_key='item_upc'
     )
 }}
 
 SELECT 
-    EXTRACT(YEAR from scan_datetime) year, 
-    EXTRACT(MONTH from scan_datetime) month,
+    EXTRACT(YEAR from scan_timestamp) year, 
+    EXTRACT(MONTH from scan_timestamp) month,
     year_month,
     item_upc,
     category_code, 
