@@ -2,7 +2,9 @@
 
 {{
     config(
-        unique_key='item_upc'
+        materialized='table',
+        unique_key='year_month,item_upc,category_code,store_id',
+        pre_hook=[ "SET hoodie.simple.index.parallelism=1000" ]
     )
 }}
 
