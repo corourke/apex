@@ -15,5 +15,5 @@ SELECT
     region, 
     sum(unit_qty) net_units,
     sum(net_sale) as net_sales
-FROM apex_silver.sales_detail
+FROM {{ref('sales_detail')}}
 GROUP BY 1, 2, 3, 4
