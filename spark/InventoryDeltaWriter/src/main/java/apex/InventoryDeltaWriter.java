@@ -58,7 +58,7 @@ public class InventoryDeltaWriter {
                 deltas.write()
                                 .format("hudi")
                                 .option(DataSourceWriteOptions.RECORDKEY_FIELD().key(), "delta_date,store_id,item_upc") // Composite
-                                                                                                                        // Key
+                                                                                                                        // key
                                 .option(DataSourceWriteOptions.PRECOMBINE_FIELD().key(), "last_updated") // Latest wins
                                                                                                          // for upserts
                                 .option(DataSourceWriteOptions.TABLE_TYPE().key(), tableType)
