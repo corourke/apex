@@ -1,5 +1,9 @@
 -- Prepare scans with store location and item category for sales analysis
-{{ config(unique_key="scan_id", parition_by=["year_month"]) }}
+{{ config(
+        unique_key="scan_id", 
+        parition_by=["year_month"]
+    ) 
+}}
 
 
 WITH

@@ -2,7 +2,7 @@
 
 {{
     config(
-        materialized='table',
+        incremental_strategy='insert_overwrite',
         unique_key='scan_date,category_code,region',
         pre_hook=[ "SET hoodie.simple.index.parallelism=1000" ]
     )

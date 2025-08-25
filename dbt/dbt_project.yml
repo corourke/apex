@@ -36,10 +36,12 @@ clean-targets:         # directories to be removed by `dbt clean`
 models:
   apex:
       +materialized: incremental
-      +incremental_strategy: merge
       +file_format: hudi
+      +incremental_strategy: merge
       +pre_hook: USE apex_bronze
       +location_root: s3://onehouse-customer-bucket-7a00bf9c/datalake/apex_silver/
-      +tblproperties:
-         hoodie.table.type: mor
+      +options:
+         hoodie.table.type: MERGE_ON_READ
+         hoodie.datasource.write.operation: upsert
+         hoodie.bulkinsert.sort.mode: NONE
 
