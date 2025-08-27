@@ -11,7 +11,7 @@
 
 --{% set scan_date = var("scan_date", (modules.datetime.datetime.now() - modules.datetime.timedelta(days=1)).strftime('%Y-%m-%d')) %}
 -- Jinja vs. Python expression so that it evaluates in the job runner
-{% set scan_date = var("scan_date", (current_timestamp() - interval '1 day') | string | date_format('%Y-%m-%d')) %}
+{% set scan_date = var('scan_date', (run_started_at - modules.datetime.timedelta(days=1)).strftime('%Y-%m-%d')) %}
 
 WITH
     scans AS (
