@@ -2,7 +2,12 @@
 
 {{
     config(
-        unique_key='item_id'
+        unique_key='item_id',
+        incremental_strategy='insert_overwrite',
+        options={
+            'hoodie.datasource.write.precombine.field': 'item_id',
+            'hoodie.datasource.write.operation': 'bulk_insert',
+        }
     )
 }}
 
