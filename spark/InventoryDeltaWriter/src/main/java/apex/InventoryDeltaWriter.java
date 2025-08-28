@@ -26,7 +26,7 @@ public class InventoryDeltaWriter {
                 String databaseName = "apex_silver";
                 String tableName = "inventory_delta";
                 String tablePath = "s3a://onehouse-customer-bucket-7a00bf9c/datalake/apex_silver/inventory_delta";
-                String scansPath = "s3a://onehouse-customer-bucket-7a00bf9c/datalake/apex_bronze/retail_scans/v2";
+                String scansPath = "s3a://onehouse-customer-bucket-7a00bf9c/datalake/apex_bronze/retail_scans/v3";
 
                 // Determine date range: process the prior lookbackDays full days (up to
                 // yesterday)
