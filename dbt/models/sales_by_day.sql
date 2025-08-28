@@ -2,9 +2,19 @@
 
 {{
     config(
-        materialized='table',
+        materialized='incremental',
+        file_format='hudi',
+        incremental_strategy='insert_overwrite',
         unique_key='scan_date,category_code,region',
-        pre_hook=[ "SET hoodie.simple.index.parallelism=1000" ]
+        partition_by=['scan_date'],
+        pre_hook=["SET hoodie.simple.index.parallelism=1000"],
+        options={
+            'hoodie.table.type': 'MERGE_ON_READ',
+            'hoodie.datasource.write.operation': 'upsert',
+            'hoodie.bulkinsert.sort.mode': 'NONE',
+            'hoodie.datasource.write.partitionpath.field': 'scan_date',
+            'primaryKey': 'scan_date,category_code,region'
+        }
     )
 }}
 
