@@ -2,6 +2,8 @@ from airflow import DAG
 from airflow.utils.dates import days_ago
 from airflow_providers_onehouse.operators.jobs import OnehouseRunJobOperator
 from airflow_providers_onehouse.sensors.onehouse import OnehouseJobRunSensor
+from datetime import datetime
+from pytz import timezone
 
 default_args = {
     'owner': 'airflow',
@@ -12,7 +14,8 @@ with DAG(
     'run_inv_delta_writer',
     default_args=default_args,
     description='Run the Inventory Delta Writer Job',
-    schedule_interval=None,
+    schedule_interval='0 4 * * *',
+    start_date=datetime(2025, 8, 29, tzinfo=timezone('America/Los_Angeles')),
     catchup=False,
     tags=['onehouse', 'spark'],
 ) as dag:

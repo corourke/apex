@@ -1,7 +1,8 @@
 from airflow import DAG
 from airflow.operators.empty import EmptyOperator
 from airflow.providers.dbt.cloud.operators.dbt import DbtCloudRunJobOperator
-from pendulum import datetime
+from datetime import datetime
+from pytz import timezone
 
 # Define default arguments
 default_args = {
@@ -14,8 +15,8 @@ default_args = {
 with DAG(
     dag_id='dbt_cloud_job',
     default_args=default_args,
-    schedule_interval='@daily',
-    start_date=datetime(2023, 1, 1),
+    schedule_interval='0 2 * * *',
+    start_date=datetime(2025, 8, 29, tzinfo=timezone('America/Los_Angeles')),
     catchup=False,
 ) as dag:
     begin = EmptyOperator(task_id='begin')
