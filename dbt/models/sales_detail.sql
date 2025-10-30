@@ -9,9 +9,8 @@
     )
 }}
 
---{% set scan_date = var("scan_date", (modules.datetime.datetime.now() - modules.datetime.timedelta(days=1)).strftime('%Y-%m-%d')) %}
--- Jinja vs. Python expression so that it evaluates in the job runner
-{% set scan_date = var('scan_date', (run_started_at - modules.datetime.timedelta(days=1)).strftime('%Y-%m-%d')) %}
+-- Start with yesterday's POS scans
+{% set start_date = var('scan_date', (run_started_at - modules.datetime.timedelta(days=1)).strftime('%Y-%m-%d')) %}
 
 WITH
     scans AS (
@@ -26,7 +25,7 @@ WITH
             CAST((unit_qty * unit_price) AS DECIMAL(10, 2)) AS net_sale
         FROM apex_bronze.retail_scans
         {% if is_incremental() %}
-        WHERE to_date(to_timestamp(scan_datetime, 'yyyy-MM-dd HH:mm:ss')) = '{{ scan_date }}'
+        WHERE to_date(to_timestamp(scan_datetime, 'yyyy-MM-dd HH:mm:ss')) = '{{ start_date }}'
         {% endif %}
     ),
     final AS (
